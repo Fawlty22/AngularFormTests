@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { validationSchema } from './yup/form.schema';
 import { ValidationError } from 'yup';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -29,12 +30,13 @@ import { ValidationError } from 'yup';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'test-app';
   interests = ['Reading', 'Sports', 'Travel', 'Music'];
   genderOptions = ['Male', 'Female', 'Other'];
   yupErrors: { [key: string]: string } = {};
   form: FormGroup;
+  formSub: Subscription;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -45,6 +47,15 @@ export class AppComponent {
       gender: ['', Validators.required],
       interests: [[], Validators.required],
     });
+  }
+  ngOnInit(): void {
+    this.formSub = this.form.valueChanges.subscribe((newValue) => {
+      this.validateForm(newValue);
+      console.log(newValue)
+    });
+  }
+  ngOnDestroy(): void {
+    this.formSub.unsubscribe();
   }
   async onSubmit() {
     await this.validateForm(this.form.value)
@@ -58,7 +69,6 @@ export class AppComponent {
       return {};
     } catch (err: any) {
       if (err instanceof ValidationError) {
-        console.log(true)
         // Map errors to a result object with field names and associated messages
         const errors: { [key: string]: string } = {};
         err.inner.forEach((error:any) => {

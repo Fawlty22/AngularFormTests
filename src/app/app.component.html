@@ -23,21 +23,27 @@
         {{ getFormControlErrors('email') }}
       </mat-error>
     </mat-form-field>
-    <div>
+    <div style="margin-bottom: 2rem;">
       <!-- Checkbox -->
       <mat-checkbox formControlName="newsletter">
         Subscribe to newsletter
       </mat-checkbox>
+      <mat-error>
+        {{ getFormControlErrors('newsletter') }}
+      </mat-error>
     </div>
 
     <!-- Multiple select -->
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="fill" style="margin-bottom: 1rem;">
       <mat-label>Interests</mat-label>
       <mat-select formControlName="interests" multiple>
         <mat-option *ngFor="let interest of interests" [value]="interest">
           {{ interest }}
         </mat-option>
       </mat-select>
+      <mat-error>
+        {{ getFormControlErrors('interests') }}
+      </mat-error>
     </mat-form-field>
 
     <!-- Radio buttons -->
@@ -47,6 +53,9 @@
         <mat-radio-button *ngFor="let option of genderOptions" [value]="option">
           {{ option }}
         </mat-radio-button>
+        <mat-error>
+          {{ getFormControlErrors('gender') }}
+        </mat-error>
       </mat-radio-group>
     </div>
 

@@ -5,6 +5,6 @@ export const validationSchema = Yup.object().shape({
   lastName: Yup.string().required('Last name is required'),
   email: Yup.string().email('Invalid email format').required('Email is required'),
   newsletter: Yup.bool().oneOf([true], 'You must agree to the newsletter').required(),
-  gender: Yup.string().oneOf(['Male', 'Female', 'Other'], 'Invalid gender').required('Gender is required'),
+  gender: Yup.string().required('Gender is required').oneOf(['Male', 'Female', 'Other'], 'Invalid gender'),
   interests: Yup.array().of(Yup.string()).min(1, 'At least one interest must be selected').required('Interests are required'),
 });
