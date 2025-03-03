@@ -1,8 +1,8 @@
 <mat-card>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="full-width" >
       <mat-label>First Name</mat-label>
-      <input matInput formControlName="firstName" />
+      <input (blur)="onBlur('firstName')" matInput formControlName="firstName" />
       <mat-error >
         {{ getFormControlErrors('firstName') }}
       </mat-error>
@@ -10,7 +10,7 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Last Name</mat-label>
-      <input matInput formControlName="lastName" />
+      <input (blur)="onBlur('lastName')" matInput formControlName="lastName" />
       <mat-error >
         {{ getFormControlErrors('lastName') }}
       </mat-error>
@@ -18,7 +18,7 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email</mat-label>
-      <input matInput formControlName="email" />
+      <input (blur)="onBlur('email')" matInput formControlName="email" />
       <mat-error>
         {{ getFormControlErrors('email') }}
       </mat-error>
@@ -36,7 +36,7 @@
     <!-- Multiple select -->
     <mat-form-field appearance="fill" style="margin-bottom: 1rem;">
       <mat-label>Interests</mat-label>
-      <mat-select formControlName="interests" multiple>
+      <mat-select (blur)="onBlur('interests')" formControlName="interests" multiple>
         <mat-option *ngFor="let interest of interests" [value]="interest">
           {{ interest }}
         </mat-option>
@@ -56,6 +56,7 @@
         <mat-error>
           {{ getFormControlErrors('gender') }}
         </mat-error>
+        
       </mat-radio-group>
     </div>
 
@@ -76,7 +77,8 @@
       <p>Untouched: {{ control.untouched }}</p>
       <p>Valid: {{ control.valid }}</p>
       <p>Invalid: {{ control.invalid }}</p>
-      <p>Errors: {{ control.errors | json }}</p>
+      <p>Ang Errors: {{ control.errors | json }}</p>
+      <p>Yup Errors: {{ yupErrors[control.name] }}</p>
     </div>
   </div>
 </mat-card>

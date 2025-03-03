@@ -1,12 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { RouterOutlet } from '@angular/router';
-import {MatCheckbox } from '@angular/material/checkbox';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { validationSchema } from './yup/form.schema';
@@ -25,10 +30,10 @@ import { Subscription } from 'rxjs';
     MatButtonModule,
     MatCardModule,
     MatCheckbox,
-    RouterOutlet
+    RouterOutlet,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'test-app';
@@ -40,28 +45,37 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      newsletter: [false,Validators.requiredTrue],
-      gender: ['', Validators.required],
-      interests: [[], Validators.required],
+      firstName: [''],
+      lastName: [''],
+      email: [''],
+      newsletter: [false],
+      gender: [''],
+      interests: [[]],
     });
   }
   ngOnInit(): void {
     this.formSub = this.form.valueChanges.subscribe((newValue) => {
-      this.validateForm(newValue);
-      console.log(newValue)
+      this.validateFormBlur(newValue);
+      console.log(newValue);
     });
   }
+
   ngOnDestroy(): void {
     this.formSub.unsubscribe();
   }
   async onSubmit() {
-    await this.validateForm(this.form.value)
+    await this.validateFormFinal(this.form.value);
   }
-  async validateForm(formData: any) {
 
+  async onBlur(controlName: string) {
+    await this.validateFormBlur(this.form.value);
+    if (this.form.get(controlName!)?.touched) {
+      this.form
+        .get(controlName!)
+        ?.setErrors({ yup: true });
+    }
+  }
+  async validateFormFinal(formData: any) {
     try {
       // Validate the form data
       await validationSchema.validate(formData, { abortEarly: false });
@@ -71,11 +85,34 @@ export class AppComponent implements OnInit, OnDestroy {
       if (err instanceof ValidationError) {
         // Map errors to a result object with field names and associated messages
         const errors: { [key: string]: string } = {};
-        err.inner.forEach((error:any) => {
+        err.inner.forEach((error: any) => {
           errors[error.path!] = error.message;
+          this.form.get(error.path!)?.setErrors({ yup: true });
+          // this.form.get(error.path!)?.markAsTouched();
         });
-  
-        console.log(errors)
+
+        this.yupErrors = errors;
+      }
+      // Handle any other errors here
+      return { general: 'An unexpected error occurred' };
+    }
+  }
+  async validateFormBlur(formData: any) {
+    try {
+      // Validate the form data
+      await validationSchema.validate(formData, { abortEarly: false });
+      // If validation is successful, return an empty object (no errors)
+      return {};
+    } catch (err: any) {
+      if (err instanceof ValidationError) {
+        // Map errors to a result object with field names and associated messages
+        const errors: { [key: string]: string } = {};
+        err.inner.forEach((error: any) => {
+          if (this.form.get(error.path!)?.touched) errors[error.path!] = error.message;
+          // if (this.form.get(error.path!)?.touched) this.form.get(error.path!)?.setErrors({ yup: error.message });
+          // this.form.get(error.path!)?.markAsTouched();
+        });
+
         this.yupErrors = errors;
       }
       // Handle any other errors here
@@ -84,7 +121,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getFormControls() {
-    return Object.keys(this.form.controls).map(key => {
+    return Object.keys(this.form.controls).map((key) => {
       const control = this.form.get(key);
       return {
         label: this.capitalizeFirstLetter(key),
@@ -95,7 +132,8 @@ export class AppComponent implements OnInit, OnDestroy {
         untouched: control?.untouched,
         valid: control?.valid,
         invalid: control?.invalid,
-        errors: control?.errors
+        errors: control?.errors,
+        name: key,
       };
     });
   }
@@ -105,6 +143,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getFormControlErrors(controlName: string): string {
-    return this.yupErrors[controlName]
+    return this.yupErrors[controlName];
   }
 }
