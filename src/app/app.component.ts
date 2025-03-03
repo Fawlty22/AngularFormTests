@@ -9,6 +9,7 @@ import { RouterOutlet } from '@angular/router';
 import {MatCheckbox } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
+import { validationSchema } from './yup/form.schema';
 
 @Component({
   selector: 'app-root',
