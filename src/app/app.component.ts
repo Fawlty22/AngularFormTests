@@ -89,6 +89,4 @@ export class AppComponent {
     }
     return [];
   }
-
-
 }

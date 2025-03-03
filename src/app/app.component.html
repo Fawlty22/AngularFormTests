@@ -3,24 +3,24 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>First Name</mat-label>
       <input matInput formControlName="firstName" />
-      <mat-error *ngFor="let error of getFormControlErrors('firstName')">
-        {{ error }}
+      <mat-error >
+        {{ getFormControlErrors('firstName') }}
       </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Last Name</mat-label>
       <input matInput formControlName="lastName" />
-      <mat-error *ngFor="let error of getFormControlErrors('lastName')">
-        {{ error }}
+      <mat-error >
+        {{ getFormControlErrors('lastName') }}
       </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Email</mat-label>
       <input matInput formControlName="email" />
-      <mat-error *ngFor="let error of getFormControlErrors('email')">
-        {{ error }}
+      <mat-error>
+        {{ getFormControlErrors('email') }}
       </mat-error>
     </mat-form-field>
     <div>
