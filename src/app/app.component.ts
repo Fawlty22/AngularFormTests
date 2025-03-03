@@ -10,6 +10,7 @@ import {MatCheckbox } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { validationSchema } from './yup/form.schema';
+import { ValidationError } from 'yup';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +33,7 @@ export class AppComponent {
   title = 'test-app';
   interests = ['Reading', 'Sports', 'Travel', 'Music'];
   genderOptions = ['Male', 'Female', 'Other'];
+  yupErrors: { [key: string]: string } = {};
   form: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -44,9 +46,33 @@ export class AppComponent {
       interests: [[], Validators.required],
     });
   }
-  onSubmit() {
-    console.log(this.form.value);
+  async onSubmit() {
+    await this.validateForm(this.form.value)
   }
+  async validateForm(formData: any) {
+
+    try {
+      // Validate the form data
+      await validationSchema.validate(formData, { abortEarly: false });
+      // If validation is successful, return an empty object (no errors)
+      return {};
+    } catch (err: any) {
+      if (err instanceof ValidationError) {
+        console.log(true)
+        // Map errors to a result object with field names and associated messages
+        const errors: { [key: string]: string } = {};
+        err.inner.forEach((error:any) => {
+          errors[error.path!] = error.message;
+        });
+  
+        console.log(errors)
+        this.yupErrors = errors;
+      }
+      // Handle any other errors here
+      return { general: 'An unexpected error occurred' };
+    }
+  }
+
   getFormControls() {
     return Object.keys(this.form.controls).map(key => {
       const control = this.form.get(key);
@@ -68,26 +94,7 @@ export class AppComponent {
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
-  getFormControlErrors(controlName: string): string[] {
-    const control = this.form.get(controlName);
-    if (control && control.errors) {
-      const errors = [];
-      for (const errorKey in control.errors) {
-        if (control.errors.hasOwnProperty(errorKey)) {
-          if (errorKey === 'required') {
-            errors.push(`${controlName} is required`);
-          } else if (errorKey === 'minlength') {
-            errors.push(`${controlName} must be at least 3 characters`);
-          } else if (errorKey === 'pattern') {
-            errors.push(`${controlName} should contain only letters`);
-          } else if (errorKey === 'email') {
-            errors.push(`Invalid Email`);
-          }
-          // Add other error conditions here as needed
-        }
-      }
-      return errors;
-    }
-    return [];
+  getFormControlErrors(controlName: string): string {
+    return this.yupErrors[controlName]
   }
 }
