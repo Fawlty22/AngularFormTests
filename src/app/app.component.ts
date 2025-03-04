@@ -75,6 +75,8 @@ export class AppComponent implements OnInit, OnDestroy {
       // Validate the form data
       await validationSchema.validate(formData, { abortEarly: false });
       // If validation is successful, return an empty object (no errors)
+      
+      this.yupErrors = {};
       return {};
     } catch (err: any) {
       if (err instanceof ValidationError) {
@@ -96,20 +98,20 @@ export class AppComponent implements OnInit, OnDestroy {
       // Validate the form data
       await validationSchema.validate(formData, { abortEarly: false });
       // If validation is successful, return an empty object (no errors)
-
+      this.yupErrors = {};
       return {};
     } catch (err: any) {
       if (err instanceof ValidationError) {
         // Map errors to a result object with field names and associated messages
         const errors: { [key: string]: string } = {};
         err.inner.forEach((error: any) => {
-            // console.log(error.path +'----',this.form.get(error.path!)?.touched);
             if (this.form.get(error.path!)?.touched){ 
               errors[error.path!] = error.message;
-              this.form.get(error.path!)?.setErrors({ yup: error.message });
+              this.form.get(error.path!)?.setErrors({ yup: true });
             }
           
         });
+        console.log(errors)
         this.yupErrors = errors;
       }
       // Handle any other errors here
