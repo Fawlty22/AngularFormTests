@@ -66,9 +66,9 @@ export class AppComponent implements OnInit, OnDestroy {
     await this.validateFormSubmit(this.form.value);
   }
 
-  async onBlur(controlName: string) {
+  async onBlur(controlName:string) {
+    this.form.get(controlName)?.markAsTouched()
     await this.validateFormBlur(this.form.value);
-    
   }
   async validateFormSubmit(formData: any) {
     try {
@@ -96,18 +96,20 @@ export class AppComponent implements OnInit, OnDestroy {
       // Validate the form data
       await validationSchema.validate(formData, { abortEarly: false });
       // If validation is successful, return an empty object (no errors)
+
       return {};
     } catch (err: any) {
       if (err instanceof ValidationError) {
         // Map errors to a result object with field names and associated messages
         const errors: { [key: string]: string } = {};
         err.inner.forEach((error: any) => {
-          if (this.form.get(error.path!)?.touched){ 
-            errors[error.path!] = error.message;
-            this.form.get(error.path!)?.setErrors({ yup: error.message });
-          }
+            // console.log(error.path +'----',this.form.get(error.path!)?.touched);
+            if (this.form.get(error.path!)?.touched){ 
+              errors[error.path!] = error.message;
+              this.form.get(error.path!)?.setErrors({ yup: error.message });
+            }
+          
         });
-
         this.yupErrors = errors;
       }
       // Handle any other errors here
