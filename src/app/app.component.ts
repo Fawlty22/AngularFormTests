@@ -56,7 +56,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.formSub = this.form.valueChanges.subscribe((newValue) => {
       this.validateFormBlur(newValue);
-      console.log(newValue);
     });
   }
 
@@ -64,18 +63,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.formSub.unsubscribe();
   }
   async onSubmit() {
-    await this.validateFormFinal(this.form.value);
+    await this.validateFormSubmit(this.form.value);
   }
 
   async onBlur(controlName: string) {
     await this.validateFormBlur(this.form.value);
-    if (this.form.get(controlName!)?.touched) {
-      this.form
-        .get(controlName!)
-        ?.setErrors({ yup: true });
-    }
+    
   }
-  async validateFormFinal(formData: any) {
+  async validateFormSubmit(formData: any) {
     try {
       // Validate the form data
       await validationSchema.validate(formData, { abortEarly: false });
@@ -88,7 +83,6 @@ export class AppComponent implements OnInit, OnDestroy {
         err.inner.forEach((error: any) => {
           errors[error.path!] = error.message;
           this.form.get(error.path!)?.setErrors({ yup: true });
-          // this.form.get(error.path!)?.markAsTouched();
         });
 
         this.yupErrors = errors;
@@ -108,9 +102,10 @@ export class AppComponent implements OnInit, OnDestroy {
         // Map errors to a result object with field names and associated messages
         const errors: { [key: string]: string } = {};
         err.inner.forEach((error: any) => {
-          if (this.form.get(error.path!)?.touched) errors[error.path!] = error.message;
-          // if (this.form.get(error.path!)?.touched) this.form.get(error.path!)?.setErrors({ yup: error.message });
-          // this.form.get(error.path!)?.markAsTouched();
+          if (this.form.get(error.path!)?.touched){ 
+            errors[error.path!] = error.message;
+            this.form.get(error.path!)?.setErrors({ yup: error.message });
+          }
         });
 
         this.yupErrors = errors;
